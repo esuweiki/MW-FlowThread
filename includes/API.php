@@ -172,6 +172,11 @@ class API extends \ApiBase {
 					$this->dieNoParam('content');
 				}
 
+				$nick = $this->getMain()->getVal('nick');
+				if ($this->getUser()->getId() === 0 && !$nick) {
+					$this->dieNoParam('nick');
+				}
+
 				// Permission check
 				Post::checkIfCanPost($this->getUser());
 
@@ -183,7 +188,8 @@ class API extends \ApiBase {
 					'id' => null,
 					'pageid' => $page,
 					'userid' => $this->getUser()->getId(),
-					'username' => $this->getUser()->getName(),
+					'username' => $this->getUser()->getId() ? $this->getUser()->getName() : $nick,
+					'ip' => $this->getContext()->getRequest()->getIP(),
 					'text' => '', // Will be changed later
 					'parentid' => count($postList) ? $postList[0]->id : null,
 					'status' => Post::STATUS_NORMAL, // Will be changed later
@@ -278,6 +284,9 @@ class API extends \ApiBase {
 				\ApiBase::PARAM_TYPE => 'integer',
 			),
 			'postid' => array(
+				\ApiBase::PARAM_TYPE => 'string',
+			),
+			'nick' => array(
 				\ApiBase::PARAM_TYPE => 'string',
 			),
 			'content' => array(

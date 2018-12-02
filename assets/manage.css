@@ -19,7 +19,7 @@
     padding-left: 60px;
 }
 
-.comment-user, .comment-user a {
+.comment-user, .comment-user a, .comment-ip {
     color: #777;
     font-size: 13px;
 }

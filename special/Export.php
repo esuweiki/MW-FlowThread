@@ -86,6 +86,7 @@ class SpecialExport extends \SpecialPage {
 						'text' => $post->text,
 						'parentid' => $post->parentid ? $post->parentid->getHex() : null,
 						'status' => $post->status,
+						'ip' => $post->ip
 					);
 					echo '  ' . \FormatJSON::encode($postJSON);
 				}

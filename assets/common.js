@@ -27,6 +27,7 @@ function Thread() {
     + '</div>'
     + '<div class="comment-body">'
     + '<div class="comment-user"></div>'
+    + '<div class="comment-ip"></div>'
     + '<div class="comment-text"></div>'
     + '<div class="comment-footer">'
     + '<span class="comment-time"></span>'
@@ -55,7 +56,12 @@ Thread.prototype.init = function(post) {
   if (post.userid !== 0) {
     userlink = wrapPageLink('User:' + post.username, post.username);
   } else {
-    userlink = wrapText(post.username);
+    userlink = '<span class="comment-guest">[' + mw.msg('flowthread-ui-guest') + ']&nbsp;</span>' + wrapText(post.username);
+  }
+  if (post.ip) {
+    object.find('.comment-ip').html("IP: " + post.ip);
+  } else {
+    object.find('.comment-ip').hide();
   }
   object.find('.comment-user').html(userlink);
   object.find('.comment-avatar img').attr('src', getAvatar(post.userid, post.username));
@@ -165,6 +171,7 @@ function ReplyBox() {
     + '<textarea placeholder="' + mw.msg('flowthread-ui-placeholder') + '"></textarea>'
     + '<div class="comment-preview" style="display:none;"></div>'
     + '<div class="comment-toolbar">'
+    + '<input class="comment-nick" width="50px" placeholder="' + mw.msg('flowthread-ui-placeholder-nick') + '">'
     + '<button class="flowthread-btn flowthread-btn-wikitext' + (localStorage.flowthread_use_wikitext === 'true' ? ' on' : '') + '" title="' + mw.msg('flowthread-ui-usewikitext') + '"></button>'
     + '<button class="flowthread-btn flowthread-btn-preview" title="' + mw.msg('flowthread-ui-preview') + '"></button>'
     + '<button class="comment-submit">' + mw.msg('flowthread-ui-submit') + '</button>'
@@ -179,6 +186,15 @@ function ReplyBox() {
     if (e.ctrlKey && e.which === 13) object.find('.comment-submit').click();
     self.pack();
   });
+
+  if (mw.user.getId() !== 0) {
+    object.find('.comment-nick').hide();
+  } else {
+    object.find('.comment-nick').val(localStorage.flowthread_nick);
+    object.find('.comment-nick').keyup(function (e) {
+      localStorage.flowthread_nick = object.find('.comment-nick').val();
+    });
+  }
 
   object.find('.flowthread-btn-preview').click(function() {
     var obj = $(this);

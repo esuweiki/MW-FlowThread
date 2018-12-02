@@ -82,6 +82,7 @@ Thread.sendComment = function(postid, text, wikitext) {
     type: 'post',
     pageid: mw.config.get('wgArticleId'),
     postid: postid,
+    nick: localStorage.flowthread_nick || "",
     content: text,
     wikitext: wikitext
   };
@@ -207,15 +208,15 @@ var pager = new Paginator();
 $('#bodyContent').after('<div class="comment-container-top" disabled></div>', '<div class="comment-container"></div>', pager.object, function () {
   var userPreference = getUserCommentPreference();
   if (canpost && userPreference) return createReplyBox('');
-  
+
   var noticeContainer = $('<div>').addClass('comment-bannotice');
-  
+
   if (!userPreference) {
     noticeContainer.html(config.UserOptOutNotice);
   } else {
     noticeContainer.html(config.CantPostNotice);
   }
-  
+
   return noticeContainer;
 }());
 

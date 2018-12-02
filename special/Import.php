@@ -84,6 +84,7 @@ class SpecialImport extends \FormSpecialPage {
 					'status' => $postJson->status,
 					'like' => 0,
 					'report' => 0,
+					'ip' => $postJson->ip ?: '0.0.0.0'
 				);
 				$postObject = new Post($data);
 				try {

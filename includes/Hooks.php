@@ -78,6 +78,7 @@ class Hooks {
 		global $wgFlowThreadConfig;
 		$output->addJsConfigVars(array('wgFlowThreadConfig' => $config));
 		$output->addModules('ext.flowthread');
+		$output->addModules('ext.flowthread.mobile');
 		return true;
 	}
 

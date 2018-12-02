@@ -23,6 +23,7 @@ class Post {
 	public $pageid = 0;
 	public $userid = 0;
 	public $username = '';
+	public $ip = '';
 	public $text = null;
 	public $status = 0;
 
@@ -36,6 +37,7 @@ class Post {
 		$this->pageid = $data['pageid'];
 		$this->userid = $data['userid'];
 		$this->username = $data['username'];
+		$this->ip = $data['ip'];
 		$this->text = $data['text'];
 		$this->parentid = $data['parentid'];
 		$this->status = $data['status'];
@@ -49,6 +51,7 @@ class Post {
 			'flowthread_pageid',
 			'flowthread_userid',
 			'flowthread_username',
+			'flowthread_ip',
 			'flowthread_text',
 			'flowthread_parentid',
 			'flowthread_status',
@@ -71,6 +74,7 @@ class Post {
 			'pageid' => intval($row->flowthread_pageid),
 			'userid' => intval($row->flowthread_userid),
 			'username' => $row->flowthread_username,
+			'ip' => $row->flowthread_ip,
 			'text' => $row->flowthread_text,
 			'parentid' => $parentid,
 			'status' => intval($row->flowthread_status),
@@ -331,6 +335,7 @@ class Post {
 			'flowthread_pageid' => $this->pageid,
 			'flowthread_userid' => $this->userid,
 			'flowthread_username' => $this->username,
+			'flowthread_ip' => $this->ip,
 			'flowthread_text' => $this->text,
 			'flowthread_parentid' => $this->parentid ? $this->parentid->getBin() : null,
 			'flowthread_status' => $this->status,

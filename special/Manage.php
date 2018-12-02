@@ -6,6 +6,7 @@ class SpecialManage extends \SpecialPage {
 	private $page;
 	private $user;
 	private $keyword;
+	private $ip;
 	private $filter;
 	private $error;
 	private $offset = 0;
@@ -31,6 +32,7 @@ class SpecialManage extends \SpecialPage {
 		$opt->add('keyword', '');
 		$opt->add('offset', '0');
 		$opt->add('limit', '20');
+		$opt->add('ip', '');
 		$opt->add('dir', '');
 
 		$opt->fetchValuesFromRequest($this->getRequest());
@@ -46,6 +48,7 @@ class SpecialManage extends \SpecialPage {
 		$this->page = $opt->getValue('page');
 		$this->user = $opt->getValue('user');
 		$this->keyword = $opt->getValue('keyword');
+		$this->ip = $opt->getValue('ip');
 		$this->offset = intval($opt->getValue('offset'));
 		$this->limit = intval($opt->getValue('limit'));
 		$this->revDir = $opt->getValue('dir') === 'prev';
@@ -83,6 +86,7 @@ class SpecialManage extends \SpecialPage {
 				'userid' => $post->userid,
 				'username' => $post->username,
 				'title' => $title ? $title->getPrefixedText() : null,
+				'ip' => $post->ip,
 				'text' => $post->text,
 				'timestamp' => $post->id->getTimestamp(),
 				'parentid' => $post->parentid ? $post->parentid->getHex() : '',
@@ -134,6 +138,10 @@ class SpecialManage extends \SpecialPage {
 			$cond[] = 'flowthread_text' . $query;
 		}
 
+		if ($this->ip) {
+			$cond['flowthread_ip'] = $this->ip;
+		}
+
 		$dir = $this->revDir ? 'ASC' : 'DESC';
 		$orderBy = 'flowthread_id ' . $dir;
 
@@ -170,6 +178,7 @@ class SpecialManage extends \SpecialPage {
 		$html .= $this->getTitleInput($this->page) . "\n";
 		$html .= $this->getUserInput($this->user) . "\n";
 		$html .= $this->getKeywordInput($this->keyword) . "\n";
+		$html .= $this->getIpInput($this->ip) . "\n";
 
 		$html .= \Xml::tags('p', null, $this->getFilterLinks($this->filter));
 
@@ -253,6 +262,18 @@ class SpecialManage extends \SpecialPage {
 			'',
 			20,
 			$keyword
+		);
+
+		return '<span style="white-space: nowrap">' . $label . '</span>';
+	}
+
+	private function getIpInput($ip) {
+		$label = \Xml::inputLabel(
+			"IP",
+			'ip',
+			'',
+			45,
+			$ip
 		);
 
 		return '<span style="white-space: nowrap">' . $label . '</span>';

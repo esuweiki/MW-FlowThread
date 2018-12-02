@@ -3,6 +3,7 @@ CREATE TABLE /*_*/FlowThread (
 	flowthread_pageid INT(10) UNSIGNED NOT NULL,
 	flowthread_userid INT(10) UNSIGNED NOT NULL,
 	flowthread_username VARCHAR(255) NOT NULL,
+	flowthread_ip VARCHAR(255) NOT NULL,
 	flowthread_text TEXT NOT NULL,
 	flowthread_parentid BINARY(11),
 	flowthread_status TINYINT(1) UNSIGNED NOT NULL,
@@ -12,6 +13,8 @@ CREATE TABLE /*_*/FlowThread (
 ) /*$wgDBTableOptions*/;
 
 CREATE INDEX /*i*/FlowThreadSearchByPage ON /*_*/FlowThread(flowthread_pageid, flowthread_parentid);
+CREATE INDEX /*i*/FlowThreadUser ON /*_*/FlowThread(flowthread_userid);
+CREATE INDEX /*i*/FlowThreadIP ON /*_*/FlowThread(flowthread_ip);
 
 CREATE TABLE /*_*/FlowThreadAttitude (
 	flowthread_att_id BINARY(11) NOT NULL,

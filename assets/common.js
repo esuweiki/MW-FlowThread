@@ -194,6 +194,9 @@ function ReplyBox() {
     object.find('.comment-nick').keyup(function (e) {
       localStorage.flowthread_nick = object.find('.comment-nick').val();
     });
+    localStorage.flowthread_use_wikitext = false;
+    object.find('flowthread-btn-wikitext').hide();
+    object.find('flowthread-btn-preview').hide();
   }
 
   object.find('.flowthread-btn-preview').click(function() {

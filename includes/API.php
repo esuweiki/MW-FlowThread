@@ -199,7 +199,7 @@ class API extends \ApiBase {
 				$postObject = new Post($data);
 
 				// Need to feed this to spam filter
-				$useWikitext = $this->getMain()->getCheck('wikitext');
+				$useWikitext = $this->getMain()->getCheck('wikitext') && $this->getUser()->getId();
 				$filterResult = SpamFilter::validate($text, $this->getUser(), $useWikitext);
 				$text = $filterResult['text'];
 

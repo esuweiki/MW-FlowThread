@@ -26,6 +26,7 @@
     "FlowThread\\SpecialExport": "special/Export.php",
     "FlowThread\\SpecialImport": "special/Import.php",
     "FlowThread\\SpecialManage": "special/Manage.php",
+    "FlowThread\\SpecialRecent": "special/Recent.php",
     "FlowThread\\SpecialLink": "special/Link.php",
     "FlowThread\\EchoHooks": "echo/Hooks.php",
     "FlowThread\\EchoPresentationModel": "echo/PresentationModel.php",
@@ -129,17 +130,26 @@
         "assets/manage.css"
       ],
       "messages": [
+        "flowthread-ui-reply",
         "flowthread-ui-like",
         "flowthread-ui-report",
         "flowthread-ui-delete",
         "flowthread-ui-delete_confirmation",
         "flowthread-ui-guest",
+        "flowthread-ui-usewikitext",
+        "flowthread-ui-preview",
+        "flowthread-ui-placeholder",
+        "flowthread-ui-placeholder-nick",
+        "flowthread-ui-submit",
+        "flowthread-ui-nocontent",
         "flowthread-ui-recover",
         "flowthread-ui-markchecked",
         "flowthread-ui-erase",
         "flowthread-ui-selectall",
         "flowthread-ui-unselectall",
-        "flowthread-ui-user-post-on-page"
+        "flowthread-ui-user-post-on-page",
+        "flowthread-ui-networkerror",
+        "flowthread-ui-useroptout"
       ],
       "targets": [
         "desktop",
@@ -185,6 +195,7 @@
     "FlowThreadExport": "FlowThread\\SpecialExport",
     "FlowThreadImport": "FlowThread\\SpecialImport",
     "FlowThreadManage": "FlowThread\\SpecialManage",
+    "FlowThreadRecent": "FlowThread\\SpecialRecent",
     "FlowThreadLink": "FlowThread\\SpecialLink"
   },
   "config": {

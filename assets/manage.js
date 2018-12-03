@@ -1,5 +1,9 @@
-var deleted = mw.config.get('commentfilter') === 'deleted' || mw.config.get('commentfilter') == 'spam';
+var deleted = mw.config.get('commentfilter') === 'deleted' || mw.config.get('commentfilter') === 'spam';
 var fulladmin = mw.config.exists('commentadmin');
+
+function reloadComments() {
+	location.reload();
+}
 
 function createThread(post) {
 	var thread = new Thread();
@@ -7,19 +11,29 @@ function createThread(post) {
 
 	thread.init(post);
 
+	if (canpost) {
+		thread.addButton('reply', mw.msg('flowthread-ui-reply'), function() {
+			thread.reply();
+		});
+	}
+
 	// Enhance the username by adding page title
 	var pageLink = wrapPageLink('Special:FlowThreadLink/' + post.id, post.title);
 	object.find('.comment-user').html(
 		mw.msg('flowthread-ui-user-post-on-page', object.find('.comment-user').html(), pageLink));
 
-	thread.addButton('like', mw.msg('flowthread-ui-like') + '(' + post.like + ')', function() {});
+	if (mw.user.getId() !== 0) {
+		thread.addButton('like', mw.msg('flowthread-ui-like') + '(' + post.like + ')', function() {});
 
-	thread.addButton('report', mw.msg('flowthread-ui-report') + '(' + post.report + ')', function() {});
+		thread.addButton('report', mw.msg('flowthread-ui-report') + '(' + post.report + ')', function() {});
+	}
 
 	if (!deleted) {
-		thread.addButton('delete', mw.msg('flowthread-ui-delete'), function() {
-			thread.delete();
-		});
+		if (fulladmin || (post.userid === mw.user.getId() && post.userid !== 0)) {
+			thread.addButton('delete', mw.msg('flowthread-ui-delete'), function() {
+				thread.delete();
+			});
+		}
 
 		if (post.report && fulladmin) {
 			thread.addButton('markchecked', mw.msg('flowthread-ui-markchecked'), function() {
@@ -37,11 +51,12 @@ function createThread(post) {
 		}
 	}
 
-	object.find('.comment-avatar').click(function() {
-		object.toggleClass('comment-selected');
-		onSelect();
-	});
-
+	if (fulladmin) {
+		object.find('.comment-avatar').click(function () {
+			object.toggleClass('comment-selected');
+			onSelect();
+		});
+	}
 	return thread;
 }
 
@@ -154,20 +169,22 @@ function wrapButtonMsg(msg) {
 	return '<button>' + mw.msg(msg) + '</button>'
 }
 
+if (fulladmin) {
 // Setup batch actions
-var selectAll = $(wrapButtonMsg('flowthread-ui-selectall'));
-$("#mw-content-text").append(selectAll);
-selectAll.click(function() {
-	$('.comment-thread').addClass('comment-selected');
-	onSelect();
-});
+	var selectAll = $(wrapButtonMsg('flowthread-ui-selectall'));
+	$("#mw-content-text").append(selectAll);
+	selectAll.click(function () {
+		$('.comment-thread').addClass('comment-selected');
+		onSelect();
+	});
 
-var unselectAll = $(wrapButtonMsg('flowthread-ui-unselectall'));
-$("#mw-content-text").append(unselectAll);
-unselectAll.click(function() {
-	$('.comment-thread').removeClass('comment-selected');
-	onSelect();
-});
+	var unselectAll = $(wrapButtonMsg('flowthread-ui-unselectall'));
+	$("#mw-content-text").append(unselectAll);
+	unselectAll.click(function () {
+		$('.comment-thread').removeClass('comment-selected');
+		onSelect();
+	});
+}
 
 function getSelectedThreads() {
 	return Array.prototype.map.call($('.comment-selected'), function(obj) {

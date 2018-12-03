@@ -1,4 +1,7 @@
 var config = mw.config.get('wgFlowThreadConfig');
+var canpost = mw.config.exists('canpost');
+
+var replyBox = null;
 
 /* Get avatar by user name */
 function getAvatar(id, username) {
@@ -162,6 +165,37 @@ Thread.prototype.markAsPopular = function() {
   this.object.removeAttr('id');
 }
 
+Thread.prototype.reply = function() {
+    if (replyBox) {
+        replyBox.remove();
+    }
+    replyBox = createReplyBox(this.post);
+    this.appendChild({
+        object: replyBox
+    });
+}
+
+Thread.sendComment = function(post, text, wikitext) {
+  var api = new mw.Api();
+  var req = {
+    action: 'flowthread',
+    type: 'post',
+    pageid: mw.config.get('wgArticleId') || post.pageid,
+    postid: post.id,
+    nick: localStorage.flowthread_nick || "",
+    content: text,
+    wikitext: wikitext
+  };
+  api.get(req).done(reloadComments).fail(function(error, obj) {
+    if (obj.error)
+      showMsgDialog(obj.error.info);
+    else if (error === 'http')
+      showMsgDialog(mw.msg('flowthread-ui-networkerror'));
+    else
+      showMsgDialog(error);
+  });
+}
+
 function ReplyBox() {
   var template = '<div class="comment-replybox">'
     + '<div class="comment-avatar">'
@@ -242,6 +276,21 @@ function ReplyBox() {
   object.find('.comment-submit').click(function() {
     if (self.onSubmit) self.onSubmit();
   });
+}
+
+function createReplyBox(parent) {
+  var replyBox = new ReplyBox();
+
+  replyBox.onSubmit = function() {
+    var text = replyBox.getValue().trim();
+    if (!text) {
+      showMsgDialog(mw.msg('flowthread-ui-nocontent'));
+      return;
+    }
+    replyBox.setValue('');
+    Thread.sendComment(parent, text, replyBox.isInWikitextMode());
+  };
+  return replyBox.object;
 }
 
 ReplyBox.prototype.isInWikitextMode = function() {

@@ -1,7 +1,4 @@
-var canpost = mw.config.exists('canpost');
 var ownpage = mw.config.exists('commentadmin') || mw.config.get('wgNamespaceNumber') === 2 && mw.config.get('wgTitle').replace('/$', '') === mw.user.id();
-
-var replyBox = null;
 
 /* Get user preference */
 /* Returns positive result for non-user namespaces */
@@ -65,37 +62,6 @@ function createThread(post) {
   return thread;
 }
 
-Thread.prototype.reply = function() {
-  if (replyBox) {
-    replyBox.remove();
-  }
-  replyBox = createReplyBox(this.post.id);
-  this.appendChild({
-    object: replyBox
-  });
-}
-
-Thread.sendComment = function(postid, text, wikitext) {
-  var api = new mw.Api();
-  var req = {
-    action: 'flowthread',
-    type: 'post',
-    pageid: mw.config.get('wgArticleId'),
-    postid: postid,
-    nick: localStorage.flowthread_nick || "",
-    content: text,
-    wikitext: wikitext
-  };
-  api.get(req).done(reloadComments).fail(function(error, obj) {
-    if (obj.error)
-      showMsgDialog(obj.error.info);
-    else if (error === 'http')
-      showMsgDialog(mw.msg('flowthread-ui-networkerror'));
-    else
-      showMsgDialog(error);
-  });
-}
-
 function reloadComments(offset) {
   offset = offset || 0;
   var api = new mw.Api();
@@ -138,21 +104,6 @@ function reloadComments(offset) {
 function setFollowUp(postid, follow) {
   var obj = $('#comment-' + postid + ' > .comment-post');
   obj.after(follow);
-}
-
-function createReplyBox(parentid) {
-  var replyBox = new ReplyBox();
-
-  replyBox.onSubmit = function() {
-    var text = replyBox.getValue().trim();
-    if (!text) {
-      showMsgDialog(mw.msg('flowthread-ui-nocontent'));
-      return;
-    }
-    replyBox.setValue('');
-    Thread.sendComment(parentid, text, replyBox.isInWikitextMode());
-  };
-  return replyBox.object;
 }
 
 /* Paginator support */

@@ -206,7 +206,8 @@ class API extends \ApiBase {
 				// We need to do this step, as we might need to transform
 				// the text, so unify both cases will be more convenient.
 				if (!$useWikitext) {
-					$text = '<nowiki>' . htmlspecialchars($text) . '</nowiki>';
+					$text = htmlspecialchars($text);
+					$text = str_replace("\n", "<br>", $text);
 				}
 
 				// Restrict max nest level. If exceeded, automatically prepend a @ before
@@ -222,24 +223,26 @@ class API extends \ApiBase {
 					}
 				}
 
-				$parser = new \Parser();
+				if ($useWikitext) {
+					$parser = new \Parser();
 
-				// Set options for parsing
-				$opt = new \ParserOptions($this->getUser());
-				$opt->setEditSection(false); // Edit button will not work!
+					// Set options for parsing
+					$opt = new \ParserOptions($this->getUser());
+					$opt->setEditSection(false); // Edit button will not work!
 
-				$output = $parser->parse($text, \Title::newFromId($page), $opt);
-				$text = $output->getText();
+					$output = $parser->parse($text, \Title::newFromId($page), $opt);
+					$text = $output->getText();
+					// Useless p wrapper
+					$text = \Parser::stripOuterParagraph($text);
 
-				// Get all mentioned user
-				$mentioned = Helper::generateMentionedList($output, $postObject);
+					// Get all mentioned user
+					$mentioned = Helper::generateMentionedList($output, $postObject);
 
-				unset($parser);
-				unset($opt);
-				unset($output);
+					unset($parser);
+					unset($opt);
+					unset($output);
+				}
 
-				// Useless p wrapper
-				$text = \Parser::stripOuterParagraph($text);
 				$text = SpamFilter::sanitize($text);
 
 				// Fix object

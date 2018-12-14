@@ -1,7 +1,7 @@
 <?php
 namespace FlowThread;
 
-class SpecialRecent extends \SpecialPage {
+class SpecialRecent extends \UnlistedSpecialPage {
 
 	private $page;
 	private $user;
@@ -15,7 +15,7 @@ class SpecialRecent extends \SpecialPage {
 	private $haveMore = false;
 
 	public function __construct() {
-		parent::__construct('FlowThreadRecent', '', false);
+		parent::__construct('FlowThreadRecent');
 	}
 
 	public function execute($par) {

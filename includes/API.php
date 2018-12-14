@@ -191,7 +191,7 @@ class API extends \ApiBase {
 					'username' => $this->getUser()->getId() ? $this->getUser()->getName() : $nick,
 					'ip' => $this->getContext()->getRequest()->getIP(),
 					'text' => '', // Will be changed later
-					'parentid' => count($postList) ? $postList[0]->id : null,
+					'parentid' => ($postList && count($postList)) ? $postList[0]->id : null,
 					'status' => Post::STATUS_NORMAL, // Will be changed later
 					'like' => 0,
 					'report' => 0,
@@ -238,6 +238,10 @@ class API extends \ApiBase {
 					// Get all mentioned user
 					$mentioned = Helper::generateMentionedList($output, $postObject);
 
+					if (count($mentioned)) {
+						\Hooks::run('FlowThreadMention', array($postObject, $mentioned));
+					}
+
 					unset($parser);
 					unset($opt);
 					unset($output);
@@ -257,10 +261,6 @@ class API extends \ApiBase {
 					if ($wgTriggerFlowThreadHooks) {
 						\Hooks::run('FlowThreadSpammed', array($postObject));
 					}
-				}
-
-				if (count($mentioned)) {
-					\Hooks::run('FlowThreadMention', array($postObject, $mentioned));
 				}
 
 				$this->getResult()->addValue(null, $this->getModuleName(), '');

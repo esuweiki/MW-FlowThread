@@ -27,6 +27,9 @@ function Thread() {
   var template = '<div class="comment-thread"><div class="comment-post">'
     + '<div class="comment-avatar">'
     + '<img src=""></img>'
+    // + '<div class="comment-hat">'
+    // + '<img src=""></img>'
+    // + '</div>'
     + '</div>'
     + '<div class="comment-body">'
     + '<div class="comment-user"></div>'
@@ -67,7 +70,7 @@ Thread.prototype.init = function(post) {
     object.find('.comment-ip').hide();
   }
   object.find('.comment-user').html(userlink);
-  object.find('.comment-avatar img').attr('src', getAvatar(post.userid, post.username));
+  object.find('.comment-avatar > img').attr('src', getAvatar(post.userid, post.username));
   object.find('.comment-text').html(post.text);
   object.find('.comment-time')
     .text(getTimeString(post.timestamp * 1000))
@@ -186,7 +189,7 @@ Thread.sendComment = function(post, text, wikitext) {
     content: text,
     wikitext: wikitext
   };
-  api.get(req).done(reloadComments).fail(function(error, obj) {
+  api.post(req).done(reloadComments).fail(function(error, obj) {
     if (obj.error)
       showMsgDialog(obj.error.info);
     else if (error === 'http')

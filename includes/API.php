@@ -164,6 +164,10 @@ class API extends \ApiBase {
 				break;
 
 			case 'post':
+				if ($this->getRequest()->getMethod() !== "POST") {
+					$this->dieUsage("POST method must be used to post a comment", "mustpost");
+				}
+
 				if (!$page) {
 					$this->dieNoParam('pageid');
 				}
@@ -212,42 +216,58 @@ class API extends \ApiBase {
 
 				// Restrict max nest level. If exceeded, automatically prepend a @ before
 				global $wgFlowThreadConfig;
+				$mentionText = '';
+
 				if ($postObject->getNestLevel() > $wgFlowThreadConfig['MaxNestLevel']) {
 					$parent = $postObject->getParent();
 					$postObject->parentid = $parent->parentid;
 					$postObject->parent = $parent->parent;
 					if ($parent->userid) {
-						$text = $this->msg('flowthread-reply-user', $parent->username)->plain() . $text;
+						if ($useWikitext) {
+							$text = $this->msg('flowthread-reply-user', $parent->username)->plain() . $text;
+						} else {
+							$mentionText = $this->msg('flowthread-reply-user', $parent->username)->plain();
+						}
 					} else {
-						$text = $this->msg('flowthread-reply-anonymous', $parent->username)->plain() . $text;
+						if ($useWikitext) {
+							$text = $this->msg('flowthread-reply-anonymous', $parent->username)->plain() . $text;
+						} else {
+							$mentionText = $this->msg('flowthread-reply-anonymous', $parent->username)->plain();
+						}
 					}
 				}
+
+				$parser = new \Parser();
+
+				// Set options for parsing
+				$opt = new \ParserOptions($this->getUser());
+				$opt->setEditSection(false); // Edit button will not work!
+				$output = '';
 
 				if ($useWikitext) {
-					$parser = new \Parser();
-
-					// Set options for parsing
-					$opt = new \ParserOptions($this->getUser());
-					$opt->setEditSection(false); // Edit button will not work!
-
 					$output = $parser->parse($text, \Title::newFromId($page), $opt);
-					$text = $output->getText();
+					$text = $output->getText(['unwrap' => true]);
 					// Useless p wrapper
 					$text = \Parser::stripOuterParagraph($text);
-
-					// Get all mentioned user
-					$mentioned = Helper::generateMentionedList($output, $postObject);
-
-					if (count($mentioned)) {
-						\Hooks::run('FlowThreadMention', array($postObject, $mentioned));
-					}
-
-					unset($parser);
-					unset($opt);
-					unset($output);
+				} else {
+					$output = $parser->parse($mentionText, \Title::newFromId($page), $opt);
+					$mentionText = $output->getText(['unwrap' => true]);
+					// Useless p wrapper
+					$mentionText = \Parser::stripOuterParagraph($mentionText);
 				}
 
+				// Get all mentioned user
+				$mentioned = Helper::generateMentionedList($output, $postObject);
+
+				unset($parser);
+				unset($opt);
+				unset($output);
+
 				$text = SpamFilter::sanitize($text);
+
+				if (!empty($mentionText)) {
+					$text = $mentionText . $text;
+				}
 
 				// Fix object
 				if (!$filterResult['good']) {
@@ -261,6 +281,10 @@ class API extends \ApiBase {
 					if ($wgTriggerFlowThreadHooks) {
 						\Hooks::run('FlowThreadSpammed', array($postObject));
 					}
+				}
+
+				if (count($mentioned)) {
+					\Hooks::run('FlowThreadMention', array($postObject, $mentioned));
 				}
 
 				$this->getResult()->addValue(null, $this->getModuleName(), '');
